@@ -5,6 +5,6 @@ models
 *.swp
 *.p
 *.mp4
-examples
+examples/.ipynb_checkpoints
 output_images
 ZipFolder
