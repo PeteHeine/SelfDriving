@@ -1,0 +1,10 @@
+data
+.ipynb_checkpoints
+__pycache__
+models
+*.swp
+*.p
+*.mp4
+examples
+output_images
+ZipFolder

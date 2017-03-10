@@ -1,0 +1,14 @@
+data
+.ipynb_checkpoints
+*.h5
+models
+*.swp
+*.p
+bin
+LeNet
+LeNet2
+LeNetAll
+LeNetAugmented
+LeNetReduceLearning
+New
+
