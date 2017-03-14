@@ -104,6 +104,8 @@ def sobelDirections(sobelx,sobely):
 def hls(rgb):
     return cv2.cvtColor(rgb, cv2.COLOR_BGR2HLS)
 
+def lab(rgb):
+    return cv2.cvtColor(rgb, cv2.COLOR_BGR2LAB)
 # Dummie function.
 def nothing(x):
         pass
@@ -118,6 +120,7 @@ def visualizeAndSelectThreshold(rgbStacked,selectType):
     mag = magnitude(sobelx,sobely)
     direction = sobelDirections(sobelx,sobely)
     hlsColors = hls(rgbStacked)
+    labColors = lab(rgbStacked)
         
     # selectType = 0: To visualize threshold of sobelx and sobely
     if selectType == 0: 
@@ -134,6 +137,9 @@ def visualizeAndSelectThreshold(rgbStacked,selectType):
         trackerNames = ['l','s']
         valImages = [hlsColors[:,:,1],hlsColors[:,:,2]]
 
+    if selectType == 3: 
+        trackerNames = ['lab_b','hls_l']
+        valImages = [labColors[:,:,2,],hlsColors[:,:,1]]
     # Make window.
     cv2.namedWindow('image',cv2.WINDOW_NORMAL)
     
@@ -208,7 +214,11 @@ def comebineGradMagDirColor(rgbCrop,thr_sobelx,thr_sobely,thr_mag,thr_dir,thr_bw
     bwS= applyThreshold(hlsColors[:,:,2],thr_bwS)
     
     return (bwSobelx & bwSobely) | (bwMag & bwDirection) | (bwL & bwS)
-    
+
+def simpleThreshold(rgbCrop,thrBwLab_B,thrBwHls_l) : 
+    hlsColors = hls(rgbCrop)
+    labColors = lab(rgbCrop)
+    return applyThreshold(hlsColors[:,:,1],thrBwHls_l) | applyThreshold(labColors[:,:,2],thrBwLab_B)
 # Function for finding lanes using the sliding window function.
 def fitLanesSlidingWindow(bwWrapped,initWindowHeight,doPlotting) :
     

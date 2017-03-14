@@ -16,8 +16,8 @@ import lineDetection as ld
 # Visualization gates. Specifies what to be visualized. 
 visualizeCalibration = False
 visualizeAndSelectThreshold = False
-thresholdType = 2
-visualizeAndSelectPerspective = False
+thresholdType = 3
+visualizeAndSelectPerspective = True
 visualizeSlidingWindow = False
 visualizePolyfit = False
 visualizeResult = 0 # 0,1 or 2 (subplot of the 8 test images)
@@ -26,6 +26,8 @@ visualizeResult = 0 # 0,1 or 2 (subplot of the 8 test images)
 gateTestImages = False # Run test images
 gateVideo = True # Run video
 
+
+useColorDetection = True
 
 # Calibration images.
 dirCalibrationImages = './camera_cal'
@@ -155,9 +157,11 @@ imgCrop = (imgCropAbs*np.array([dimRgb[0],dimRgb[0],dimRgb[1],dimRgb[1]])).astyp
 rgbCrop = rgbCor[imgCrop[0]:imgCrop[1],imgCrop[2]:imgCrop[3],:]
 
 # The sourch and distination points are selected 
-pSrc = np.array([[200,430],[1100,430],[689,162],[592,162]],dtype=np.float32)
+#pSrc = np.array([[200,430],[1100,430],[689,162],[592,162]],dtype=np.float32)
+pSrc = np.array([[200,430],[1100,430],[715, 180],[570, 180]],dtype=np.float32)
 pDist = np.array([[400,430],[900,430],[900,162],[400,162]],dtype=np.float32)
-
+# 715, 180
+# 570, 180
 # The perspective mapping is determined. 
 M = cv2.getPerspectiveTransform(pSrc,pDist)
 Minv = cv2.getPerspectiveTransform(pDist,pSrc)
@@ -186,7 +190,8 @@ thrMag = (40,255)
 thrDir = (145,179)
 thrBwL = (132,255)
 thrBwS = (132,255)
-
+thrBwLab_B = (166,255)
+thrBwHls_l = (222,255)
 
 # Defines a mask to only include road-area in the image. 
 topPositionRatio = 2.0/10
@@ -205,7 +210,7 @@ if visualizeResult == 2 :
 #dirsTestImages = [dirsTestImages[2]]
 #dirsTestImages = dirsTestImages[0:3]
 
-
+initWindowHeight = 0.3
 
 if gateTestImages : 
     # Run through test images.
@@ -239,7 +244,10 @@ if gateTestImages :
             ld.imshow_bgr(plt,cv2.bitwise_and(rgbCrop,rgbCrop,mask=mask.astype(np.uint8)))
             
         # Results of thresholding
-        bwCombined = ld.comebineGradMagDirColor(rgbCrop,thrSobelx,thrSobely,thrMag,thrDir,thrBwL,thrBwS)
+        if useColorDetection : 
+            bwCombined = ld.simpleThreshold(rgbCrop,thrBwLab_B,thrBwHls_l) 
+        else : 
+            bwCombined = ld.comebineGradMagDirColor(rgbCrop,thrSobelx,thrSobely,thrMag,thrDir,thrBwL,thrBwS)
         
         if visualizePolyfit and (idxImage == 6) : 
             plt.figure()
@@ -257,7 +265,7 @@ if gateTestImages :
         
         dimBw = bwWrapped.shape
         
-        initWindowHeight = 0.3
+        
         
         # Perform sliding window on.
         polyfitWindow = ld.fitLanesSlidingWindow(bwWrapped,initWindowHeight,visualizeSlidingWindow)
@@ -329,6 +337,7 @@ if gateVideo :
     cFrames = 0
     # Directory of input video.
     dirInputVideo = "project_video"
+    #dirInputVideo = "challenge_video"
     clip1 = VideoFileClip(dirInputVideo+".mp4")
     
     print("Loading video...")
@@ -361,8 +370,13 @@ if gateVideo :
             
     
         # Threshold using sobelx,sobely,gradient magnitude, gradient directions, l (hls) and s(hls)
-        bwCombined = ld.comebineGradMagDirColor(rgbCrop,thrSobelx,thrSobely,thrMag,thrDir,thrBwL,thrBwS)
-        
+        #bwCombined = ld.comebineGradMagDirColor(rgbCrop,thrSobelx,thrSobely,thrMag,thrDir,thrBwL,thrBwS)
+        # Results of thresholding
+        if useColorDetection : 
+            bwCombined = ld.simpleThreshold(rgbCrop,thrBwLab_B,thrBwHls_l) 
+        else : 
+            bwCombined = ld.comebineGradMagDirColor(rgbCrop,thrSobelx,thrSobely,thrMag,thrDir,thrBwL,thrBwS)
+            
         # Include only road area using a mask. 
         bwCombined = (bwCombined & mask).astype(np.float16)
         
