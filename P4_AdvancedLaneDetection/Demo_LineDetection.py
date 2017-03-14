@@ -336,8 +336,8 @@ cv2.namedWindow('image',cv2.WINDOW_NORMAL)
 if gateVideo : 
     cFrames = 0
     # Directory of input video.
-    dirInputVideo = "project_video"
-    #dirInputVideo = "challenge_video"
+    #dirInputVideo = "project_video"
+    dirInputVideo = "challenge_video"
     clip1 = VideoFileClip(dirInputVideo+".mp4")
     
     print("Loading video...")

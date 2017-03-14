@@ -30,7 +30,7 @@ from sklearn.cross_validation import train_test_split
 
 
 dirData = '/home/repete/Code/SelfDriving/P5_VehicleDetection/Data'
-gateVideo = False
+gateVideo = True
 
 
 
@@ -194,7 +194,8 @@ labels = label(bwCar)
 
 imgBB = dv.draw_labeled_bboxes(img,labels)
 
-
+###############################################################################
+###################### MAKE FIGURES ###########################################
 #plt.figure()
 #plt.imshow(mpimg.imread(cars[0]))
 #plt.savefig('output_images/CarExample1.png', bbox_inches='tight')
@@ -210,6 +211,46 @@ imgBB = dv.draw_labeled_bboxes(img,labels)
 #plt.figure()
 #plt.imshow(mpimg.imread(notcars[100]))
 #plt.savefig('output_images/NonCarExample2.png', bbox_inches='tight')
+
+
+#addString = 'NonCar'
+#out1,out2 = dv.visualizeHog(notcars[100], cspace='RGB', orient=9, pix_per_cell=8, cell_per_block=2, hog_channel="ALL", nbins=32)
+#
+#
+#plt.figure()
+#plt.imshow(out1)
+#plt.title("InputImage")
+#plt.savefig('output_images/Hog_In' + addString + '.png', bbox_inches='tight')
+#
+#
+#plt.figure()
+#plt.imshow(out2[0][1])
+#plt.title("Hog CH0")
+#plt.savefig('output_images/Hog0' + addString + '.png', bbox_inches='tight')
+#
+#plt.figure()
+#plt.imshow(out2[1][1])
+#plt.title("Hog CH1")
+#plt.savefig('output_images/Hog1' + addString + '.png', bbox_inches='tight')
+#
+#plt.figure()
+#plt.imshow(out2[2][1])
+#plt.title("Hog CH2")
+#plt.savefig('output_images/Hog2' + addString + '.png', bbox_inches='tight')
+
+#
+#plt.figure()
+#plt.imshow(mpimg.imread(cars[100]))
+#plt.savefig('output_images/CarExample2.png', bbox_inches='tight')
+#
+#plt.figure()
+#plt.imshow(mpimg.imread(notcars[0]))
+#plt.savefig('output_images/NonCarExample1.png', bbox_inches='tight')
+#
+#plt.figure()
+#plt.imshow(mpimg.imread(notcars[100]))
+#plt.savefig('output_images/NonCarExample2.png', bbox_inches='tight')
+
 
 
 #plt.figure()
@@ -229,9 +270,9 @@ imgBB = dv.draw_labeled_bboxes(img,labels)
 #plt.imshow(labels[0],cmap='gray')
 #plt.savefig('output_images/LabelImage.png', bbox_inches='tight')
 #
-#plt.figure()
-#plt.imshow(imgBB,cmap='gray')
-#plt.savefig('output_images/DetectedCars.png', bbox_inches='tight')
+plt.figure()
+plt.imshow(imgBB,cmap='gray')
+plt.savefig('output_images/DetectedCars.png', bbox_inches='tight')
 
 
 
@@ -251,15 +292,17 @@ if gateVideo :
     print("Done loading video")    
     
     # Keeps info of previous frames.
-    keepInfo = 0.8
-    scales = [0.50, 1.5]
-    #scales = [1.5]
-    threshold = 1
+    keepInfo = 0.7
+    scales = [1.2, 1.5, 2.0]
+    #scales = [1.0]
+    threshold = 3.5
     heatRecurrent = np.zeros((images[0].shape[0],images[0].shape[1]))
     
     imagesResult = []
+    heatmaps = []
     #images = [images[0]]
-    #images = images[0:200]
+    #images = images[250:350]
+    #images = images[1000:]
     # Step through all images in the video
     for idxImage,img in enumerate(images): 
         
@@ -277,6 +320,7 @@ if gateVideo :
 #        else: 
         heatRecurrent = heatRecurrent*keepInfo+heatmap
         
+        heatmaps.append(np.minimum(heatRecurrent.copy()/10,1.0))
         bwCar = dv.apply_threshold(heatRecurrent, threshold)
         labels = label(bwCar)
         
@@ -290,4 +334,7 @@ if gateVideo :
     
      # Create video from images. 
     new_clip = ImageSequenceClip(imagesResult, fps=clip1.fps)
-    new_clip.write_videofile(dirInputVideo + "_Processed.mp4") 
+    new_clip.write_videofile(dirInputVideo + "_Processed2.mp4") 
+    
+    new_clip2 = ImageSequenceClip(heatmaps, fps=clip1.fps)
+    new_clip2.write_videofile(dirInputVideo + "_Heat.mp4") 

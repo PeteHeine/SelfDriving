@@ -180,7 +180,34 @@ def draw_labeled_bboxes(img, labels):
 #    hist_features = np.concatenate((channel1_hist[0], channel2_hist[0], channel3_hist[0]))
 #    # Return the individual histograms, bin_centers and feature vector
 #    return np.ravel(hist_features)
+def visualizeHog(dirImg, cspace='RGB', orient=9, pix_per_cell=8, cell_per_block=2, hog_channel=0, nbins=32):
+    image = mpimg.imread(dirImg)
     
+    # apply color conversion if other than 'RGB'
+    if cspace != 'RGB':
+        if cspace == 'HSV':
+            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+        elif cspace == 'LUV':
+            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2LUV)
+        elif cspace == 'HLS':
+            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
+        elif cspace == 'YUV':
+            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
+        elif cspace == 'YCrCb':
+            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2YCrCb)
+        elif cspace == 'LAB':
+            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2LAB)
+    else: feature_image = np.copy(image)      
+
+    # Call get_hog_features() with vis=False, feature_vec=True
+    hog_features = []
+    if hog_channel == 'ALL':
+        for channel in range(feature_image.shape[2]):
+            hog_features.append(get_hog_features(feature_image[:,:,channel], orient, pix_per_cell, cell_per_block, vis=True, feature_vec=False))
+    else:
+        hog_features.append(get_hog_features(feature_image[:,:,hog_channel], orient, pix_per_cell, cell_per_block, vis=True, feature_vec=False))
+    return image,hog_features
+
 # Define a function to extract features from a list of images
 # Have this function call bin_spatial() and color_hist()
 def extract_features(imgs, cspace='RGB', orient=9, pix_per_cell=8, cell_per_block=2, hog_channel=0, nbins=32,spa_features=32,include_features='111'):
